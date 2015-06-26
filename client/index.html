@@ -1,0 +1,15 @@
+<html>
+	<head>
+		<title>CastleWar 2.0</title>
+		<link rel="stylesheet" type="text/css" href="CastleWar.min.css" />
+	</head>
+	<body>
+		<div id="fullscreen"></div>
+		<script src="CastleWar.min.js"></script>
+		<script type="text/javascript">
+			var castleWar = new CastleWar(document.getElementById("fullscreen"))
+			var network = new Network("http://localhost:1234", castleWar);
+			var keyboardController = new KeyboardController(castleWar);
+		</script>
+	</body>
+</html>
