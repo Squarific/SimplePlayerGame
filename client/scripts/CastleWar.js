@@ -1,12 +1,9 @@
-function CastleWar (container) {
-	this.container = container;
+function CastleWar () {
 	this.setPlayerList();
 
 	this.deltaTickTime = 40; //ms per tick
 	this.lastUpdate = Date.now();
-	
-	// Make sure every 20s we update
-	setInterval(this.loop.bind(this), 20000);
+	setTimeout(this.loop.bind(this), this.deltaTickTime);
 }
 
 // Set a list
@@ -25,12 +22,13 @@ CastleWar.prototype.setPlayerList = function setPlayerList (list) {
 	if (!this.players["me"]) this.players["me"] = new Player();
 };
 
+// The loop used to update everything
 CastleWar.prototype.loop = function loop () {
 	this.update();
-	this.draw();
-	requestAnimationFrame(this.loop.bind(this));
+	setTimeout(this.loop.bind(this), this.deltaTickTime);
 };
 
+// This function gets called about once every this.deltaTickTime
 CastleWar.prototype.update = function update () {
 	var deltaTime = Date.now() - this.lastUpdate;
 
@@ -41,11 +39,8 @@ CastleWar.prototype.update = function update () {
 		}
 
 		deltaTime -= this.deltaTickTime;
+		this.lastUpdate += this.deltaTickTime;
 	}
-};
-
-CastleWar.prototype.draw = function draw () {
-	
 };
 
 // Moves a player

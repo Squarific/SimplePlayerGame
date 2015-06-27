@@ -17,11 +17,17 @@ function KeyboardController (castleWar) {
 	};
 
 	document.addEventListener("keydown", this.handleKeyDown.bind(this));
+	document.addEventListener("keyup", this.handleKeyUp.bind(this));
 }
 
 // Execute the keydown actions
 KeyboardController.prototype.handleKeyDown = function handleKeyDown (event) {
 	this.performActions(this.keyDownList[event.keyCode] || []);
+};
+
+// Execute the keyup actions
+KeyboardController.prototype.handleKeyUp = function handleKeyUp (event) {
+	this.performActions(this.keyUpList[event.keyCode] || []);
 };
 
 // Executes the actions in the array
@@ -44,6 +50,10 @@ KeyboardController.prototype.actions.moveright = function moveright () {
 
 KeyboardController.prototype.actions.jump = function jump () {
 	this.castleWar.action("jump");
+};
+
+KeyboardController.prototype.actions.stopjump = function jump () {
+	this.castleWar.action("stopjump");
 };
 
 KeyboardController.prototype.actions.stopmoveleft = function stopmoveleft () {

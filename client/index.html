@@ -2,14 +2,25 @@
 	<head>
 		<title>CastleWar 2.0</title>
 		<link rel="stylesheet" type="text/css" href="CastleWar.min.css" />
+		<style type="text/css">
+			#fullscreen {
+				position:fixed;
+				left:0;
+				right:0;
+				top:0;
+				bottom:0;
+			}
+		</style>
 	</head>
 	<body>
 		<div id="fullscreen"></div>
 		<script src="CastleWar.min.js"></script>
 		<script type="text/javascript">
-			var castleWar = new CastleWar(document.getElementById("fullscreen"))
-			var network = new Network("http://localhost:1234", castleWar);
+			var castleWar = new CastleWar()
+
+			//var network = new Network("http://localhost:1234", castleWar);
 			var keyboardController = new KeyboardController(castleWar);
+			var castleWarScreen = new CastleWarScreen(document.getElementById("fullscreen"), castleWar);
 		</script>
 	</body>
 </html>
