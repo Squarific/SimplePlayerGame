@@ -58,19 +58,16 @@ CastleWarScreen.prototype.backgroundChunk = function backgroundChunk (chunkX, ch
 	ctx.canvas.width = chunkSize;
 	ctx.canvas.height = chunkSize;
 
-	// Draw white background
-	ctx.beginPath();
-	ctx.rect(0, 0, chunkSize, chunkSize);
-	ctx.fillStyle = "white";
-	ctx.fill();
+	if (chunkY < 2 && chunkY > -2) {
 
+	}
 	// Draw black line at y=0, and slightly wiggle upwards
 	ctx.beginPath();
 	ctx.moveTo(0, -chunkY * chunkSize);
 
 	var parts = 5;
 	for (var k = 0; k < parts - 1; k++) {
-		ctx.lineTo((k + 1) * chunkSize / parts, -chunkY * chunkSize - Math.random() * 5);
+		ctx.lineTo((k + 1) * chunkSize / parts, -chunkY * chunkSize + Math.random() * 5);
 	}
 
 	// The last one should be at y=0 for smooth transition
@@ -103,7 +100,12 @@ CastleWarScreen.prototype.draw = function draw () {
 
 	// Only redraw the background if we moved or if
 	// we have resied the canvas
-	if (this.resized || this.backgroundTiledCanvas.leftTopX !== this.topLeftX || this.backgroundTiledCanvas.leftTopY !== this.topLeftY) {
+	if (this.resized ||
+		this.backgroundTiledCanvas.leftTopX !== this.topLeftX ||
+		this.backgroundTiledCanvas.leftTopY !== this.topLeftY ||
+		this.backgroundTiledCanvas.zoom !== this.zoom) 
+	{
+		this.backgroundTiledCanvas.absoluteZoom(this.zoom);
 		this.backgroundTiledCanvas.goto(this.topLeftX, this.topLeftY);
 		this.resized = false;
 	}

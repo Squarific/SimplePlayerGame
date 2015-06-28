@@ -1,7 +1,7 @@
 function CastleWar () {
 	this.setPlayerList();
 
-	this.deltaTickTime = 40; //ms per tick
+	this.deltaTickTime = 5; //ms per tick
 	this.lastUpdate = Date.now();
 	setTimeout(this.loop.bind(this), this.deltaTickTime);
 }

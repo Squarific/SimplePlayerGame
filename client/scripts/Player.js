@@ -11,7 +11,7 @@ function Player (propertys) {
 	// This is different from the drawing axis
 	this.x = propertys.x || 0;
 	this.y = (typeof propertys.y == "number") ? propertys.y : this.height / 2;
-	this.speed = (typeof propertys.speed == "number") ? propertys.speed : .5; // pixels per ms
+	this.speed = (typeof propertys.speed == "number") ? propertys.speed : .7; // pixels per ms
 
 	this.forceX    = (typeof propertys.forceX == "number")    ? propertys.forceX    : 0;
 	this.forceY    = (typeof propertys.forceY == "number")    ? propertys.forceY    : 0;    // Pixels per ms, pointing upwards
@@ -47,6 +47,30 @@ function Player (propertys) {
 		height: this.height,
 		msPerFrame: 100,
 		frames: 4
+	}, {
+		name: "jumpidle",
+		topLeftX: 0,
+		topLeftY: 3 * this.height,
+		width: this.width,
+		height: this.height,
+		msPerFrame: 300,
+		frames: 1
+	}, {
+		name: "jumpleft",
+		topLeftX: this.width,
+		topLeftY: 3 * this.height,
+		width: this.width,
+		height: this.height,
+		msPerFrame: 100,
+		frames: 1
+	}, {
+		name: "jumpright",
+		topLeftX: 2 * this.width,
+		topLeftY: 3 * this.height,
+		width: this.width,
+		height: this.height,
+		msPerFrame: 100,
+		frames: 1
 	}]);
 
 	// The maximum distance between the real coords and the
@@ -60,9 +84,6 @@ function Player (propertys) {
 
 // Physics tick
 Player.prototype.update = function update (deltaTime) {
-	var xDis = (this.targetX - this.x);
-	var yDis = (this.targetY - this.y);
-
 	// Is the bottom of the player on the ground?
 	if ((this.targetY - this.height / 2) <= 0 && this.jumping)
 		this.forceY = this.jumpForce;
@@ -84,6 +105,9 @@ Player.prototype.update = function update (deltaTime) {
 	if ((this.targetY - this.height / 2) <= 0)
 		this.forceY = 0;
 
+	var xDis = (this.targetX - this.x);
+	var yDis = (this.targetY - this.y);
+
 	if (xDis <= this.maxTargetDistance && yDis <= this.maxTargetDistance) {
 		this.x = this.targetX;
 		this.y = this.targetY;
@@ -100,19 +124,46 @@ Player.prototype.move = function move (move) {
 	this.targetY = move.y;
 };
 
-Player.prototype.render = function render (ctx, topLeftX, topLeftY, zoom) {
-	// The drawing axis go from left to rigth and top to bottom
-	// The physics axis of the player go from bottom to top
+// Returns true if we hang in the air
+// otherwise returns false
+Player.prototype.inAir = function inAir () {
+	return this.targetY - this.height / 2 > 0;
+};
 
+// Returns the animation that should be used
+// Is a string, example: idle, jumpidle, moveright, ...
+Player.prototype.getAnimation = function () {
 	var direction = 0;
 	if (this.movingLeft) direction--;
 	if (this.movingRight) direction++;
 
+	// Normal animations
 	var animation = "idle";
 	if (direction > 0) animation = "moveright";
 	if (direction < 0) animation = "moveleft";
 
-	ctx.drawImage(this.sprite.getFrame(animation, Date.now()), (this.x - topLeftX) * zoom - this.width * zoom / 2, (-this.y - topLeftY) * zoom - this.height * zoom / 2, this.width * zoom, this.height * zoom);
+	// Jump animations
+	var airTime = this.inAir();
+	if (airTime) animation = "jumpidle";
+	if (direction > 0 && airTime) animation = "jumpleft";
+	if (direction < 0 && airTime) animation = "jumpright";
+
+	return animation;
+};
+
+Player.prototype.render = function render (ctx, topLeftX, topLeftY, zoom) {
+	// The drawing axis go from left to rigth and top to bottom
+	// The physics axis of the player go from bottom to top
+
+	var image = this.sprite.getFrame(this.getAnimation(), Date.now());
+	
+	var x = (this.x - topLeftX) * zoom - this.width * zoom / 2;
+	var y = (-this.y - topLeftY) * zoom - this.height * zoom / 2;
+
+	var zoomedWidth = this.width * zoom;
+	var zoomedHeight = this.height * zoom;
+
+	ctx.drawImage(image, x, y, zoomedWidth, zoomedHeight);
 };
 
 // Perform the given action

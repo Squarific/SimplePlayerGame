@@ -6,7 +6,11 @@ function KeyboardController (castleWar) {
 		37: ["moveleft"],
 		38: ["jump"],
 		39: ["moveright"],
-		40: []
+		40: [],
+		65: ["moveleft"],
+		87: ["jump"],
+		68: ["moveright"],
+		83: []
 	};
 
 	this.keyUpList = {
@@ -14,6 +18,10 @@ function KeyboardController (castleWar) {
 	    38:	["stopjump"],
 	    39:	["stopmoveright"],
 	    40:	[],
+		65: ["stopmoveleft"],
+		87: ["stopjump"],
+		68: ["stopmoveright"],
+		83: []
 	};
 
 	document.addEventListener("keydown", this.handleKeyDown.bind(this));
