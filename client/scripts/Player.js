@@ -2,14 +2,15 @@ function Player (propertys) {
 	propertys = propertys || {};
 	this.name = propertys.name || "Unnamed";
 
-	this.loadImage();
+	this.width = 50;
+	this.height = 100;
 
 	// The coordinates are the center of the player
 	// The direction of the x axis is from left to right
 	// The direction of the y axis is from bottom to top
 	// This is different from the drawing axis
 	this.x = propertys.x || 0;
-	this.y = (typeof propertys.y == "number") ? propertys.y : this.image.height / 2;
+	this.y = (typeof propertys.y == "number") ? propertys.y : this.height / 2;
 	this.speed = (typeof propertys.speed == "number") ? propertys.speed : .5; // pixels per ms
 
 	this.forceX    = (typeof propertys.forceX == "number")    ? propertys.forceX    : 0;
@@ -22,6 +23,32 @@ function Player (propertys) {
 	this.targetX = this.x;
 	this.targetY = this.y;
 
+	this.sprite = new Sprite("images/playerSprites.png", [{
+		name: "idle",
+		topLeftX: 0,
+		topLeftY: 0,
+		width: this.width,
+		height: this.height,
+		msPerFrame: 300,
+		frames: 10
+	}, {
+		name: "moveleft",
+		topLeftX: 0,
+		topLeftY: this.height,
+		width: this.width,
+		height: this.height,
+		msPerFrame: 100,
+		frames: 4
+	}, {
+		name: "moveright",
+		topLeftX: 0,
+		topLeftY: 2 * this.height,
+		width: this.width,
+		height: this.height,
+		msPerFrame: 100,
+		frames: 4
+	}]);
+
 	// The maximum distance between the real coords and the
 	// ones we are interpolating. In both the x and y direction
 	// If the distance is smaller in both, then the real ones
@@ -31,37 +58,13 @@ function Player (propertys) {
 	this.health = (typeof propertys.health == "number") ? propertys.health : 100;
 }
 
-// Load the image for the appearance. As long as
-// it is not loaded use a preload drawing
-Player.prototype.loadImage = function loadImage () {
-	// The appearance of the player before the image is loaded
-	this.image = document.createElement("canvas");
-	this.image.width = 100;
-	this.image.height = 200;
-
-	// Draw a black rectangle as preloaded player
-	var ctx = this.image.getContext("2d");
-	ctx.beginPath();
-	ctx.rect(0, 0, this.image.width, this.image.height);
-	ctx.fillStyle = "black";
-	ctx.fill();
-
-	// Load the real image
-	var tmpImage = new Image();
-	tmpImage.addEventListener("load", function () {
-		console.log("Image " + tmpImage.src + " loaded!");
-		this.image = tmpImage;
-	}.bind(this));
-	tmpImage.src = "images/player.png";
-};
-
 // Physics tick
 Player.prototype.update = function update (deltaTime) {
 	var xDis = (this.targetX - this.x);
 	var yDis = (this.targetY - this.y);
 
 	// Is the bottom of the player on the ground?
-	if ((this.targetY - this.image.height / 2) <= 0 && this.jumping)
+	if ((this.targetY - this.height / 2) <= 0 && this.jumping)
 		this.forceY = this.jumpForce;
 
 	var direction = 0;
@@ -69,10 +72,16 @@ Player.prototype.update = function update (deltaTime) {
 	if (this.movingRight) direction++;
 
 	this.targetX += this.forceX * deltaTime + this.speed * direction * deltaTime;
+
+	var oldY = this.targetY;
 	this.targetY += this.forceY * deltaTime;
+
+	// Make sure we never fall trough the ground
+	if (oldY > -this.height / 2 && this.targetY < -this.height / 2) this.targetY = -this.height / 2;
+
 	this.forceY -= this.gravity * deltaTime;
 
-	if ((this.targetY - this.image.height / 2) <= 0)
+	if ((this.targetY - this.height / 2) <= 0)
 		this.forceY = 0;
 
 	if (xDis <= this.maxTargetDistance && yDis <= this.maxTargetDistance) {
@@ -94,7 +103,16 @@ Player.prototype.move = function move (move) {
 Player.prototype.render = function render (ctx, topLeftX, topLeftY, zoom) {
 	// The drawing axis go from left to rigth and top to bottom
 	// The physics axis of the player go from bottom to top
-	ctx.drawImage(this.image, (this.x - topLeftX) * zoom - this.image.width * zoom / 2, (-this.y - topLeftY) * zoom - this.image.height * zoom / 2, this.image.width * zoom, this.image.height * zoom);
+
+	var direction = 0;
+	if (this.movingLeft) direction--;
+	if (this.movingRight) direction++;
+
+	var animation = "idle";
+	if (direction > 0) animation = "moveright";
+	if (direction < 0) animation = "moveleft";
+
+	ctx.drawImage(this.sprite.getFrame(animation, Date.now()), (this.x - topLeftX) * zoom - this.width * zoom / 2, (-this.y - topLeftY) * zoom - this.height * zoom / 2, this.width * zoom, this.height * zoom);
 };
 
 // Perform the given action

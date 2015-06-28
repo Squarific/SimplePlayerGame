@@ -23,7 +23,7 @@ function CastleWarScreen (container, castleWar) {
 
 	// Start with 0, 0 as center
 	this.topLeftX = -this.container.offsetWidth / 2;
-	this.topLeftY = -this.container.offsetHeight / 2;
+	this.topLeftY = -this.container.offsetHeight + 1/10 * this.container.offsetHeight;
 
 	// How zoomed in we are, 2 = everything is draw double as big
 	this.zoom = 1;
@@ -58,18 +58,27 @@ CastleWarScreen.prototype.backgroundChunk = function backgroundChunk (chunkX, ch
 	ctx.canvas.width = chunkSize;
 	ctx.canvas.height = chunkSize;
 
-	// Draw air
+	// Draw white background
 	ctx.beginPath();
-	ctx.rect(0, 0, chunkSize, chunkSize - chunkY * chunkSize);
-	ctx.fillStyle = "rgb(79, 147, 191)";
+	ctx.rect(0, 0, chunkSize, chunkSize);
+	ctx.fillStyle = "white";
 	ctx.fill();
 
-	// Draw ground
+	// Draw black line at y=0, and slightly wiggle upwards
 	ctx.beginPath();
-	ctx.rect(0, Math.min(chunkY * chunkSize, 0), chunkSize, chunkSize);
-	ctx.fillStyle = "rgb(50, 133, 18)";
-	ctx.fill();
+	ctx.moveTo(0, -chunkY * chunkSize);
 
+	var parts = 5;
+	for (var k = 0; k < parts - 1; k++) {
+		ctx.lineTo((k + 1) * chunkSize / parts, -chunkY * chunkSize - Math.random() * 5);
+	}
+
+	// The last one should be at y=0 for smooth transition
+	ctx.lineTo(chunkSize, -chunkY * chunkSize);
+	
+	ctx.strokeStyle = "black";
+	ctx.lineWidth = 5;
+	ctx.stroke();
 
 	setTimeout(function () {
 		callback(ctx.canvas);
